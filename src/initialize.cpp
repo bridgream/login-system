@@ -4,10 +4,7 @@
 
 #include "../include/ls.h"
 
-int open_db_or_initialize(sqlite3 *db, const char *filename) {
-    std::filesystem::path db_file{filename};
-    bool file_exist = std::filesystem::exists(db_file);
-
+int open_db_or_initialize(sqlite3 *&db, const char *filename) {
     // try to open the db file
     // create an empty file if not exist
     {
@@ -21,10 +18,9 @@ int open_db_or_initialize(sqlite3 *db, const char *filename) {
     {
         std::string create_table_query(
                 "CREATE TABLE IF NOT EXISTS  'credentials' ("
-                "'_id'	INTEGER IDENTITY(1,1),"
-                "'username'	VARCHAR(" + std::to_string(MAX_LENGTH) + ") NOT NULL UNIQUE,"
-                "'password'	VARCHAR(" + std::to_string(MAX_LENGTH) + ") NOT NULL UNIQUE,"
-                "PRIMARY KEY('_id') );"
+                "'_id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
+                "'username'	TEXT NOT NULL UNIQUE,"
+                "'password'	TEXT);"
         );
         char *errmsg;
 
@@ -32,7 +28,6 @@ int open_db_or_initialize(sqlite3 *db, const char *filename) {
 
         if (err != SQLITE_OK) {
             throw std::runtime_error(errmsg);
-            sqlite3_free(errmsg);
         }
 
     }
@@ -42,8 +37,11 @@ int open_db_or_initialize(sqlite3 *db, const char *filename) {
 
 int add_user(sqlite3 *db, const std::string &username, const std::string &password) {
     std::string insert_command(
-            "INSERT INTO credentials VALUES (" + username + ", " + password + ")"
+            "INSERT INTO credentials (username, password) VALUES ('" + username + "', '" + password + "');"
     );
+
+    std::clog << insert_command << std::endl;
+
     char *errmsg;
 
     int err = sqlite3_exec(db, insert_command.c_str(), nullptr, nullptr, &errmsg);
@@ -53,4 +51,28 @@ int add_user(sqlite3 *db, const std::string &username, const std::string &passwo
     }
 
     return 0;
+}
+
+int check_password(sqlite3 *db, const std::string &username, const std::string &password) {
+    std::string select_command(
+            "SELECT * FROM credentials WHERE username = '" + username + "';"
+    );
+
+    std::clog << select_command << std::endl;
+
+    char *errmsg;
+
+    int err = sqlite3_exec(
+            db,
+            select_command.c_str(),
+            check_callback,
+            nullptr,
+            &errmsg);
+
+    if (err != SQLITE_OK) {
+        throw std::runtime_error(errmsg);
+    }
+
+    return 0;
+
 }

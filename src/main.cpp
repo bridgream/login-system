@@ -5,11 +5,11 @@
 #include "../include/ls.h"
 
 int main(int argc, char **argv) {
-    sqlite3 *db;
+    sqlite3 *db = nullptr;
     std::string db_file("example.db");
 
     // parse command line arguments
-    while (1) {
+    while (true) {
         int optcode = getopt(argc, argv, "hf:");
         if (optcode == -1) {
             break;
@@ -21,17 +21,20 @@ int main(int argc, char **argv) {
                 return 0;  // early exit
             case 'f':
                 db_file = optarg;
+            default:
+                break;
         }
     }
 
     std::clog << db_file.c_str() << std::endl;
 
     assert(0 == open_db_or_initialize(db, db_file.c_str()));
+    assert(nullptr != db);
 
     std::string username, password;
     char mode;
 
-    while (1) {
+    while (true) {
         std::cout << "Enter 1 to register, 2 to login, 3 to terminate. " << std::endl;
         std::cin >> mode;
 
@@ -42,8 +45,8 @@ int main(int argc, char **argv) {
                 std::cin >> username;
                 std::cout << "Password: ";
                 std::cin >> password;
-                std::cout << username << ' ' << password << std::endl;
                 add_user(db, username, password);
+                std::clog << "Insert success. " << std::endl;
                 continue;
             case '2':
                 // login
@@ -51,7 +54,7 @@ int main(int argc, char **argv) {
                 std::cin >> username;
                 std::cout << "Password: ";
                 std::cin >> password;
-                std::cout << username << ' ' << password << std::endl;
+                check_password(db, username, password);
                 continue;
             case '3':
                 break;
