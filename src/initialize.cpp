@@ -21,9 +21,9 @@ int open_db_or_initialize(sqlite3 *db, const char *filename) {
     {
         std::string create_table_query(
                 "CREATE TABLE IF NOT EXISTS  'credentials' ("
-                "'_id'	INTEGER NOT NULL UNIQUE,"
-                "'username'	TEXT NOT NULL UNIQUE,"
-                "'password'	TEXT NOT NULL,"
+                "'_id'	INTEGER IDENTITY(1,1),"
+                "'username'	VARCHAR(" + std::to_string(MAX_LENGTH) + ") NOT NULL UNIQUE,"
+                "'password'	VARCHAR(" + std::to_string(MAX_LENGTH) + ") NOT NULL UNIQUE,"
                 "PRIMARY KEY('_id') );"
         );
         char *errmsg;
@@ -35,6 +35,21 @@ int open_db_or_initialize(sqlite3 *db, const char *filename) {
             sqlite3_free(errmsg);
         }
 
+    }
+
+    return 0;
+}
+
+int add_user(sqlite3 *db, const std::string &username, const std::string &password) {
+    std::string insert_command(
+            "INSERT INTO credentials VALUES (" + username + ", " + password + ")"
+    );
+    char *errmsg;
+
+    int err = sqlite3_exec(db, insert_command.c_str(), nullptr, nullptr, &errmsg);
+
+    if (err != SQLITE_OK) {
+        throw std::runtime_error(errmsg);
     }
 
     return 0;

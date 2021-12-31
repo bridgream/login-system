@@ -31,10 +31,8 @@ int main(int argc, char **argv) {
     std::string username, password;
     char mode;
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "EndlessLoop"
     while (1) {
-        std::cout << "Enter 1 to register, 2 to login. " << std::endl;
+        std::cout << "Enter 1 to register, 2 to login, 3 to terminate. " << std::endl;
         std::cin >> mode;
 
         switch (mode) {
@@ -45,7 +43,8 @@ int main(int argc, char **argv) {
                 std::cout << "Password: ";
                 std::cin >> password;
                 std::cout << username << ' ' << password << std::endl;
-                break;
+                add_user(db, username, password);
+                continue;
             case '2':
                 // login
                 std::cout << "Username: ";
@@ -53,15 +52,16 @@ int main(int argc, char **argv) {
                 std::cout << "Password: ";
                 std::cin >> password;
                 std::cout << username << ' ' << password << std::endl;
+                continue;
+            case '3':
                 break;
             default:
                 std::cout << "Unrecognized mode: " << mode << std::endl;
-                break;
+                continue;
         }
+        break;
     }
-#pragma clang diagnostic pop
 
-
-
+    sqlite3_close(db);
     return 0;
 }
