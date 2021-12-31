@@ -18,8 +18,8 @@
  * Open the sqlite db given the filename
  * Initialize it if not exist
  */
-std::unique_ptr <sqlite3> open_db_or_initialize(const char *filename);
-int add_user(const sqlite3 *db, const char *username, const char *password, const int *id);
-int check_password(const sqlite3 *db, const char *username, const char *password);
+int open_db_or_initialize(sqlite3 *db, const char *filename);
+int add_user(sqlite3 *db, const char *username, const char *password, const int *id);
+int check_password(sqlite3 *db, const char *username, const char *password);
 
 #endif //LOGIN_SYSTEM_LS_H

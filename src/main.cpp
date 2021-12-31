@@ -5,6 +5,7 @@
 #include "../include/ls.h"
 
 int main(int argc, char **argv) {
+    sqlite3 *db;
     std::string db_file("example.db");
 
     // parse command line arguments
@@ -25,27 +26,42 @@ int main(int argc, char **argv) {
 
     std::clog << db_file.c_str() << std::endl;
 
-    auto db = open_db_or_initialize(db_file.c_str());
+    assert(0 == open_db_or_initialize(db, db_file.c_str()));
 
-    char username[MAX_LENGTH], password[MAX_LENGTH];
-    char mode[1];
+    std::string username, password;
+    char mode;
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "EndlessLoop"
     while (1) {
         std::cout << "Enter 1 to register, 2 to login. " << std::endl;
-        fgets(mode, 1, stdin);
+        std::cin >> mode;
 
-        switch (mode[0]) {
+        switch (mode) {
             case '1':
                 // register
+                std::cout << "Username: ";
+                std::cin >> username;
+                std::cout << "Password: ";
+                std::cin >> password;
+                std::cout << username << ' ' << password << std::endl;
                 break;
             case '2':
                 // login
+                std::cout << "Username: ";
+                std::cin >> username;
+                std::cout << "Password: ";
+                std::cin >> password;
+                std::cout << username << ' ' << password << std::endl;
                 break;
             default:
-                std::cout << "Unrecognized mode: " << mode[0] << std::endl;
+                std::cout << "Unrecognized mode: " << mode << std::endl;
                 break;
         }
     }
+#pragma clang diagnostic pop
+
+
 
     return 0;
 }

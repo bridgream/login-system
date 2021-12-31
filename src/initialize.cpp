@@ -4,17 +4,14 @@
 
 #include "../include/ls.h"
 
-std::unique_ptr <sqlite3> open_db_or_initialize(const char *filename) {
-    // create the database object in heap; will be returned
-    auto db = std::make_unique<sqlite3>();
-
+int open_db_or_initialize(sqlite3 *db, const char *filename) {
     std::filesystem::path db_file{filename};
     bool file_exist = std::filesystem::exists(db_file);
 
     // try to open the db file
     // create an empty file if not exist
     {
-        int err = sqlite3_open(filename, db.get());
+        int err = sqlite3_open(filename, &db);
         if (err != SQLITE_OK) {
             throw std::runtime_error("Database Open Failed");
         }
@@ -31,7 +28,7 @@ std::unique_ptr <sqlite3> open_db_or_initialize(const char *filename) {
         );
         char *errmsg;
 
-        sqlite3_exec(db, create_table_query.c_str(), nullptr, nullptr, &errmsg);
+        int err = sqlite3_exec(db, create_table_query.c_str(), nullptr, nullptr, &errmsg);
 
         if (err != SQLITE_OK) {
             throw std::runtime_error(errmsg);
@@ -40,5 +37,5 @@ std::unique_ptr <sqlite3> open_db_or_initialize(const char *filename) {
 
     }
 
-    return db;
+    return 0;
 }
