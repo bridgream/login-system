@@ -66,18 +66,21 @@ namespace ls {
         }
 
         rc = sqlite3_step(stmt);
-        sqlite3_finalize(stmt);
 
         if (rc == SQLITE_DONE) {
             // not found in the database
+            sqlite3_finalize(stmt);
             return {};
         } else if (rc == SQLITE_ROW) {
             // found the record
-            // TODO: SIGILL here
             const unsigned char *raw_password = sqlite3_column_text(stmt, 2);
-            return std::string(reinterpret_cast<char *>(const_cast<unsigned char *>(raw_password)));
+            int length = sqlite3_column_bytes(stmt, 2);
+            auto true_password = std::string(reinterpret_cast<const char *>(raw_password), length);
+            sqlite3_finalize(stmt);
+            return true_password;
         } else {
             const char *err_msg = sqlite3_errmsg(db);
+            sqlite3_finalize(stmt);
             throw sqlite3_error(err_msg);
         }
     }
@@ -96,7 +99,6 @@ namespace ls {
 
         // blob the query with desired username and password
         assert(username.length() < INT_MAX);
-        // TODO: fix casting from string::length to int
         rc = sqlite3_bind_text(stmt, 1, username.c_str(), username.length(), nullptr);
         if (rc != SQLITE_OK) {
             const char *err_msg = sqlite3_errmsg(db);
@@ -158,10 +160,12 @@ namespace ls {
                     std::clog << "Login success. " << std::endl;
                 } else {
                     std::cerr << "Login failed. " << std::endl;
+                    // to help check status; may need modification in production
                     if (not maybe_true_password.has_value()) {
                         std::clog << "User not exist. " << std::endl;
-                    } else if (password == maybe_true_password.value()) {
+                    } else if (password != maybe_true_password.value()) {
                         std::clog << "Incorrect password. " << std::endl;
+                        std::clog << "True password: " << maybe_true_password.value() << std::endl;
                     }
                 }
                 break;
