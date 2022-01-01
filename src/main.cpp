@@ -4,11 +4,8 @@
 
 #include "../include/ls.h"
 
-using namespace ls;
-
 int main(int argc, char **argv) {
-    sqlite3 *db = nullptr;
-    std::string db_file("example.db");
+    const char *db_file = "example.db";
 
     // parse command line arguments
     while (true) {
@@ -28,45 +25,12 @@ int main(int argc, char **argv) {
         }
     }
 
-    std::clog << db_file.c_str() << std::endl;
+    std::clog << "Data will write to " << db_file << std::endl;
 
-    assert(0 == open_db_or_initialize(db, db_file.c_str()));
-    assert(nullptr != db);
+    auto cm = ls::CredentialManager(db_file);
 
-    std::string username, password;
-    char mode;
+    // infinite loop until termination
+    while (0 == ls::prompt(&cm));
 
-    while (true) {
-        std::cout << "Enter 1 to register, 2 to login, 3 to terminate. " << std::endl;
-        std::cin >> mode;
-
-        switch (mode) {
-            case '1':
-                // register
-                std::cout << "Username: ";
-                std::cin >> username;
-                std::cout << "Password: ";
-                std::cin >> password;
-                add_user(db, username, password);
-                std::clog << "Insert success. " << std::endl;
-                continue;
-            case '2':
-                // login
-                std::cout << "Username: ";
-                std::cin >> username;
-                std::cout << "Password: ";
-                std::cin >> password;
-                check_password(db, username, password);
-                continue;
-            case '3':
-                break;
-            default:
-                std::cout << "Unrecognized mode: " << mode << std::endl;
-                continue;
-        }
-        break;
-    }
-
-    sqlite3_close(db);
     return 0;
 }

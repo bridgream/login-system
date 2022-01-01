@@ -7,21 +7,28 @@
 
 #include <cstdio>
 #include <getopt.h>
+#include <filesystem>
 #include <iostream>
 #include <optional>
 #include <sqlite3.h>
-#include <string>
 
 namespace ls {
-    /*
-     * Open the sqlite db given the filename
-     * Initialize it if not exist
-     */
-    int open_db_or_initialize(sqlite3 *&db, const char *filename);
 
-    int add_user(sqlite3 *db, const std::string &username, const std::string &password);
+    class CredentialManager {
+    public:
+        explicit CredentialManager(const std::string &filename);
 
-    int check_password(sqlite3 *db, const std::string &username, const std::string &password);
+        ~CredentialManager();
+
+        std::optional<std::string> maybe_get_password(const std::string &username);
+
+        void add_user(const std::string &username, const std::string &password);
+
+    private:
+        sqlite3 *db = nullptr;
+    };
+
+    int prompt(CredentialManager *cm);
 
 }
 #endif //LOGIN_SYSTEM_LS_H
