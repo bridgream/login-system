@@ -4,6 +4,8 @@
 
 #include "../include/ls.h"
 
+using namespace ls;
+
 int main(int argc, char **argv) {
     sqlite3 *db = nullptr;
     std::string db_file("example.db");
