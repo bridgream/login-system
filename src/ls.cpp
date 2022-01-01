@@ -45,12 +45,10 @@ namespace ls {
 
     std::optional<std::string> CredentialManager::maybe_get_password(const std::string &username) {
         sqlite3_stmt *stmt = nullptr;
-        std::string query(
-                "SELECT * FROM credentials WHERE username = ?;"
-        );
+        const char *query = "SELECT * FROM credentials WHERE username = ?;";
 
         // prepare the statement
-        int rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr);
+        int rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
         if (rc != SQLITE_OK) {
             throw sqlite3_error(sqlite3_errmsg(db));
         }
@@ -87,12 +85,10 @@ namespace ls {
 
     void CredentialManager::add_user(const std::string &username, const std::string &password) {
         sqlite3_stmt *stmt = nullptr;
-        std::string query(
-                "INSERT INTO credentials (username, password) VALUES (?, ?);"
-        );
+        const char *query = "INSERT INTO credentials (username, password) VALUES (?, ?);";
 
         // prepare the statement
-        int rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr);
+        int rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
         if (rc != SQLITE_OK) {
             throw sqlite3_error(sqlite3_errmsg(db));
         }
@@ -134,7 +130,7 @@ namespace ls {
         switch (mode) {
             case '3':
                 // terminate
-                return 1;
+                return 1;  // yeah, I know it's better to use a macro
             case '1':
                 // register
                 std::cout << "Username: ";
@@ -147,7 +143,7 @@ namespace ls {
                 std::cout << "Password: ";
                 std::cin >> password;
                 cm->add_user(username, password);
-                std::clog << "Insert success. " << std::endl;
+                std::clog << "Register success. " << std::endl;
                 break;
             case '2':
                 // login
