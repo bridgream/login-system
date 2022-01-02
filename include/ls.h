@@ -5,6 +5,8 @@
 #ifndef LOGIN_SYSTEM_LS_H
 #define LOGIN_SYSTEM_LS_H
 
+#include <cassert>
+#include <climits>
 #include <cstdio>
 #include <getopt.h>
 #include <filesystem>
